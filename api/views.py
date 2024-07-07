@@ -1,14 +1,14 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import User,Organisation
 from .serializers import UserSerializer, OrgSerializer
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import bcrypt
 import jwt, datetime
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 class RegisterView(APIView):
     def post(self, request):
@@ -125,7 +125,7 @@ class UserView(APIView):
                 'statusCode':404
             }, status=status.HTTP_404_NOT_FOUND)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class OrganisationsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -143,7 +143,6 @@ class OrganisationsView(APIView):
                 'message':'Retrieving failed',
                 'statusCode':400
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     def post(self, request):
         data = request.data
         user = User.objects.get(pk=request.user.id)

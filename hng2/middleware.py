@@ -2,7 +2,8 @@ import jwt
 from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
 from api.models import User
-
+from django.middleware.csrf import get_token
+from django.utils.cache import patch_vary_headers
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         auth_header = request.headers.get('x-auth-token')
