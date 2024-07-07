@@ -11,7 +11,7 @@ class AuthTests(APITestCase):
             "firstName":"test",
             "lastName":"user",
             "email":"user@example.com",
-            "password":"Password",
+            "password":"",
             "phone":"07060806857"
         }
         response = self.client.post(url, data, format='json')
@@ -39,7 +39,7 @@ class AuthTests(APITestCase):
             "firstName": "",
             "lastName": "Doe",
             "email": "john.doe@example.com",
-            "password": "password123"
+            "password": "p"
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -51,7 +51,7 @@ class AuthTests(APITestCase):
             "firstName": "John",
             "lastName": "Doe",
             "email": "user@example.com",
-            "password": "password123",
+            "password": "p",
             "phone": "1234567890"
         }
         response = self.client.post(url, data, format='json')

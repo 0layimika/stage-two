@@ -10,6 +10,9 @@ import bcrypt
 import jwt, datetime
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+
 class RegisterView(APIView):
     def post(self, request):
         data = request.data
@@ -38,12 +41,14 @@ class RegisterView(APIView):
             organisation = Organisation.objects.create(name=f"{data.get('firstName')}'s organisation")
             organisation.users.add(user)
 
-            payload={
-                'id':str(user.id),
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
-
-            }
-            token = jwt.encode(payload, 'no cast am', algorithm='HS256').encode('utf-8')
+            # payload={
+            #     'id':str(user.id),
+            #     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
+            #
+            # }
+            # token = jwt.encode(payload, 'no cast am', algorithm='HS256').encode('utf-8')
+            refresh = RefreshToken.for_user(user)
+            token = str(refresh.access_token)
             return Response({
                 "status":"success",
                 "message":"Registration Successful",
@@ -75,17 +80,19 @@ class LoginView(APIView):
                     'statusCode': 404
                 }, status=status.HTTP_404_NOT_FOUND)
             if bcrypt.checkpw(data.get('password').encode('utf-8'), user.password.encode('utf-8')):
-                payload = {
-                    'id': str(user.id),
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
-
-                }
-                token = jwt.encode(payload, 'no cast am', algorithm='HS256')
+                # payload = {
+                #     'id': str(user.id),
+                #     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
+                #
+                # }
+                # token = jwt.encode(payload, 'no cast am', algorithm='HS256')
+                refresh = RefreshToken.for_user(user)
+                token = str(refresh.access_token)
                 return Response({
                     "status": "success",
                     "message": "Authentication successful",
                     "data": {
-                        "accessToken": str(token),
+                        "accessToken": token,
                         "user":UserSerializer(user).data}
                 })
             return Response({
@@ -155,7 +162,7 @@ class OrganisationsView(APIView):
                 "message": "Client error",
                 "statusCode": 400
             })
-            if not isinstance(description, str):
+            if description is not None and not isinstance(description, str):
                 return Response({
                     "status": "Bad Request",
                     "message": "Client error",
