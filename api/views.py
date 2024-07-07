@@ -40,13 +40,6 @@ class RegisterView(APIView):
             user = User.objects.create(firstName=data.get('firstName'), lastName = data.get('lastName'), email=data.get('email'), password = encrypted, phone=data.get("phone") )
             organisation = Organisation.objects.create(name=f"{data.get('firstName')}'s organisation")
             organisation.users.add(user)
-
-            # payload={
-            #     'id':str(user.id),
-            #     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
-            #
-            # }
-            # token = jwt.encode(payload, 'no cast am', algorithm='HS256').encode('utf-8')
             refresh = RefreshToken.for_user(user)
             token = str(refresh.access_token)
             return Response({
@@ -80,12 +73,6 @@ class LoginView(APIView):
                     'statusCode': 404
                 }, status=status.HTTP_404_NOT_FOUND)
             if bcrypt.checkpw(data.get('password').encode('utf-8'), user.password.encode('utf-8')):
-                # payload = {
-                #     'id': str(user.id),
-                #     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
-                #
-                # }
-                # token = jwt.encode(payload, 'no cast am', algorithm='HS256')
                 refresh = RefreshToken.for_user(user)
                 token = str(refresh.access_token)
                 return Response({
@@ -188,12 +175,22 @@ class OrgView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, id):
         try:
+            user = User.objects.get(pk=request.user.id)
             organisation = Organisation.objects.get(orgId=id)
-            return Response({
-                "status": "success",
-                "message": "Organisations retrieved",
-                "data": OrgSerializer(organisation).data
-            }, status=status.HTTP_200_OK)
+            if user in organisation.users.all():
+
+                return Response({
+                    "status": "success",
+                    "message": "Organisations retrieved",
+                    "data": OrgSerializer(organisation).data
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'status': 'forbidden',
+                    'message': 'You do not have access to this information',
+                    'statusCode': 404
+                }, status=status.HTTP_403_FORBIDDEN)
+
         except Exception as e:
             print(e)
             return Response({

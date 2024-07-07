@@ -24,7 +24,7 @@ class User(AbstractBaseUser):
     lastName = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
-    password = models.CharField(max_length=70)
+    password = models.CharField(max_length=200)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
