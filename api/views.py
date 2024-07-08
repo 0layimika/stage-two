@@ -29,11 +29,17 @@ class RegisterView(APIView):
         try:
             validate_email(data.get('email'))
         except ValidationError:
-            return Response({'errors': [{'field': "email", 'message': "Please provide a valid email address"}]},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": "Bad Request",
+                "message": "Registration failed",
+                "statusCode":400
+            }, status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(email=data.get('email')).exists():
-            return Response({'errors': [{'field': "email", 'message': "this email address already exists in the system"}]},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": "Bad Request",
+                "message": "Registration failed",
+                "statusCode":400
+            }, status=status.HTTP_400_BAD_REQUEST)
         password = data.get("password")
         encrypted = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         try:
@@ -69,8 +75,8 @@ class LoginView(APIView):
             except User.DoesNotExist:
                 return Response({
                     'status': "Bad request",
-                    'message': "User with this email does not exist",
-                    'statusCode': 404
+                    'message': "Authentication Failed",
+                    'statusCode': 401
                 }, status=status.HTTP_401_UNAUTHORIZED)
             if bcrypt.checkpw(data.get('password').encode('utf-8'), user.password.encode('utf-8')):
                 refresh = RefreshToken.for_user(user)
@@ -84,8 +90,8 @@ class LoginView(APIView):
                 })
             return Response({
                 'status': "Bad request",
-                'message': "Incorrect Password",
-                'statusCode': 400
+                'message': "Authentication failed",
+                'statusCode': 401
             }, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             print(e)
