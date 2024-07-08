@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-
+from django.http import HttpResponse
 class RegisterView(APIView):
     def post(self, request):
         data = request.data
@@ -260,5 +260,5 @@ class addOrgView(APIView):
 
 
 def home(request):
-    pass
+    return HttpResponse("dog")
 
