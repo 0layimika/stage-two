@@ -17,23 +17,23 @@ class RegisterView(APIView):
     def post(self, request):
         data = request.data
         if not data.get('firstName') or not isinstance(data.get('firstName'), str):
-            return Response({'errors':[{'field':"firstName", 'message':"firstName is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({'errors':[{'field':"firstName", 'message':"firstName is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
         if not data.get('lastName') or not isinstance(data.get('lastName'), str):
-            return Response({'errors':[{'field':"lastName", 'message':"lastName is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({'errors':[{'field':"lastName", 'message':"lastName is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
         if not data.get('email'):
-            return Response({'errors':[{'field':"email", 'message':"email address is reequired as email"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({'errors':[{'field':"email", 'message':"email address is reequired as email"}]}, status=status.HTTP_400_BAD_REQUEST)
         if not data.get('password') or not isinstance(data.get('password'), str):
-            return Response({'errors':[{'field':"password", 'message':"password is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({'errors':[{'field':"password", 'message':"password is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
         if data.get('phone') is not None and not isinstance(data.get('phone'), str):
-            return Response({'errors':[{'field':"phone", 'message':"phone is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({'errors':[{'field':"phone", 'message':"phone is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
         try:
             validate_email(data.get('email'))
         except ValidationError:
             return Response({'errors': [{'field': "email", 'message': "Please provide a valid email address"}]},
-                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                            status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(email=data.get('email')).exists():
             return Response({'errors': [{'field': "email", 'message': "this email address already exists in the system"}]},
-                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                            status=status.HTTP_400_BAD_REQUEST)
         password = data.get("password")
         encrypted = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         try:
@@ -71,7 +71,7 @@ class LoginView(APIView):
                     'status': "Bad request",
                     'message': "User with this email does not exist",
                     'statusCode': 404
-                }, status=status.HTTP_404_NOT_FOUND)
+                }, status=status.HTTP_401_UNAUTHORIZED)
             if bcrypt.checkpw(data.get('password').encode('utf-8'), user.password.encode('utf-8')):
                 refresh = RefreshToken.for_user(user)
                 token = str(refresh.access_token)
@@ -86,7 +86,7 @@ class LoginView(APIView):
                 'status': "Bad request",
                 'message': "Incorrect Password",
                 'statusCode': 400
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             print(e)
             return Response({
