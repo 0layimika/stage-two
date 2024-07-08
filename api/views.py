@@ -259,5 +259,6 @@ class addOrgView(APIView):
             })
 
 
-
+def home(request):
+    pass
 
