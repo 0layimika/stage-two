@@ -200,6 +200,7 @@ class OrgView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class addOrgView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, id):
         data = request.data
         userId = data.get('userId')
