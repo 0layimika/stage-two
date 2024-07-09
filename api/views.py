@@ -17,23 +17,23 @@ class RegisterView(APIView):
     def post(self, request):
         data = request.data
         if not data.get('firstName') or not isinstance(data.get('firstName'), str):
-            return Response({'errors':[{'field':"firstName", 'message':"firstName is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors':[{'field':"firstName", 'message':"firstName is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         if not data.get('lastName') or not isinstance(data.get('lastName'), str):
-            return Response({'errors':[{'field':"lastName", 'message':"lastName is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors':[{'field':"lastName", 'message':"lastName is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         if not data.get('email'):
-            return Response({'errors':[{'field':"email", 'message':"email address is reequired as email"}]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors':[{'field':"email", 'message':"email address is reequired as email"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         if not data.get('password') or not isinstance(data.get('password'), str):
-            return Response({'errors':[{'field':"password", 'message':"password is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors':[{'field':"password", 'message':"password is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         if data.get('phone') is not None and not isinstance(data.get('phone'), str):
-            return Response({'errors':[{'field':"phone", 'message':"phone is required as string"}]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors':[{'field':"phone", 'message':"phone is required as string"}]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         try:
             validate_email(data.get('email'))
         except ValidationError:
             return Response({
                 "status": "Bad Request",
-                "message": "Registration failed",
+                "message": "Invalid email format",
                 "statusCode":400
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         if User.objects.filter(email=data.get('email')).exists():
             return Response({
                 "status": "Bad Request",
