@@ -44,7 +44,7 @@ class RegisterView(APIView):
         encrypted = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         try:
             user = User.objects.create(firstName=data.get('firstName'), lastName = data.get('lastName'), email=data.get('email'), password = encrypted, phone=data.get("phone") )
-            organisation = Organisation.objects.create(name=f"{data.get('firstName')}'s organisation")
+            organisation = Organisation.objects.create(name=f"{data.get('firstName')}'s Organisation")
             organisation.users.add(user)
             refresh = RefreshToken.for_user(user)
             token = str(refresh.access_token)
@@ -130,7 +130,7 @@ class OrganisationsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
-            organisations = request.user.organisations
+            organisations = request.user.organisations.all()
             return Response({
                 "status": "success",
                 "message": "Organisations retrieved",
