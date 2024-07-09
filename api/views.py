@@ -134,7 +134,8 @@ class OrganisationsView(APIView):
             return Response({
                 "status": "success",
                 "message": "Organisations retrieved",
-                "data": OrgSerializer(organisations, many=True).data
+                "data": {
+                    "organisations":OrgSerializer(organisations, many=True).data}
             }, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
