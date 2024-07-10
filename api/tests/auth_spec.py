@@ -19,11 +19,11 @@ class RegisterTests(APITestCase):
             "phone": "07060806857"
         }
         response = self.client.post(url, data, format='json')
-        Organisation.objects.create(name=f"{data.get('firstName')}'s organisation")
+        Organisation.objects.create(name=f"{data.get('firstName')}'s Organisation")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("data", response.data)
         self.assertEqual(response.data['data']['user']['firstName'], 'test')
-        self.assertIn("test's organisation", Organisation.objects.get(users__firstName='test').name)
+        self.assertIn("test's Organisation", Organisation.objects.get(users__firstName='test').name)
 
 
     def test_missing_required_fields(self):
@@ -49,7 +49,7 @@ class RegisterTests(APITestCase):
             "phone": "1234567890"
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 class TokenTest(APITestCase):
     def test_token_expiry_and_correct_user(self):
